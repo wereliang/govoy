@@ -1,0 +1,52 @@
+static_resources:
+  listeners:
+  # There is a single listener bound to port 443.
+  - name: listener_https
+    address:
+      socket_address:
+        protocol: TCP
+        address: 0.0.0.0
+        port_value: 8888
+    listener_filters:
+    - name: envoy.filters.listener.http_inspector
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.filters.listener.http_inspector.v3.HttpInspector       
+    filter_chains:
+    - filters:
+      # The HTTP connection manager is the only network filter.
+      - name: envoy.filters.network.http_connection_manager
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          stat_prefix: ingress_http
+          use_remote_address: true
+          http2_protocol_options:
+            max_concurrent_streams: 100
+          # The route table, mapping /foo to some_service.
+          route_config:
+            name: local_route
+            virtual_hosts:
+            - name: local_service
+              domains: ["*"]
+              routes:
+              - match:
+                  prefix: "/"
+                route:
+                  cluster: some_service
+          # CustomFilter and the HTTP router filter are the HTTP filter chain.
+          http_filters:
+          # - name: some.customer.filter
+          - name: envoy.filters.http.router
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+  clusters:
+  - name: some_service
+    load_assignment:
+      cluster_name: some_service
+      # Static endpoint assignment.
+      endpoints:
+      - lb_endpoints:
+        - endpoint:
+            address:
+              socket_address:
+                address: 127.0.0.1
+                port_value: 8889

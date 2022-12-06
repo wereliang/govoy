@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-server-govoy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: http-server-govoy
+  template:
+    metadata:
+      name: http-server-govoy
+      labels:
+        app: http-server-govoy
+    spec:
+      containers:
+      - name: govoy
+        image: hunter2019/govoy:v1
+        imagePullPolicy: Always
+        command: ["/govoy/bin/govoy"]
+        args: ["-c", "/govoy/config/envoy0.yaml"]
+      - name: http-server
+        image: hunter2019/http-server:v1
+        imagePullPolicy: Always
+        command: ["/http-server"]
+        args: ["8888"]
+        ports:
+        - containerPort: 8888
+      initContainers:
+      - name: iptables
+        image: hunter2019/govoy:v1
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c"]
+        args: ["/govoy/bin/iptables.sh"]
+        securityContext:
+          runAsUser: 0
+          privileged: true
+---
+apiVersion:  v1
+kind: Service
+metadata:
+  name: http-server-govoy
+spec:
+  selector:
+    app: http-server-govoy
+  ports:
+  - port: 8080
+    targetPort: 8888
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: govoy222
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: govoy222
+  template:
+    metadata:
+      name: govoy222
+      labels:
+        app: govoy222
+    spec:
+      containers:
+      - name: govoy
+        image: hunter2019/govoy:v1
+        imagePullPolicy: Always
+        command: ["/govoy/bin/govoy"]
+        args: ["-c", "/govoy/config/envoy0.yaml"]
+      - name: http-server
+        image: hunter2019/http-server:v1
+        imagePullPolicy: Always
+        command: ["/http-server"]
+        args: ["8888"]
+        ports:
+        - containerPort: 8888
+      initContainers:
+      - name: iptables
+        image: hunter2019/govoy:v1
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c"]
+        args: ["/govoy/bin/iptables.sh"]
+        securityContext:
+          runAsUser: 0
+          privileged: true
+---
+apiVersion:  v1
+kind: Service
+metadata:
+  name: govoy222
+spec:
+  selector:
+    app: govoy222
+  ports:
+  - port: 8080
+    targetPort: 8888
