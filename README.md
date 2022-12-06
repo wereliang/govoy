@@ -31,9 +31,11 @@ istioctl install --set profile=minimal \
 ```
 
 (3) 部署bookinfo demo，资源文件在examples/bookinfo/bookinfo.yaml下面
+```
 kubectl create namespace bookinfo
 kubectl label namespaces bookinfo istio-injection=enabled
 kubectl apply -f examples/bookinfo/bookinfo.yaml -n bookinfo
+```
 
 (4) 访问productpage，在上面的bookinfo.yaml里头已经定义了一个nodeport service，可以直接通过node节点进行访问
 http://$(NODEIP):30001/productpage，正常可以看到页面，通过刷新页面可以看到review在三种进行切换，底层是govoy做了流量分配。
