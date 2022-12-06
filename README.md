@@ -15,7 +15,8 @@ govoy是一个学习项目，通过golang实现envoy最基础的功能，并且�
 - loadbalancer：smooth roundrobin
 
 # 快速体验
-istio的bookinfo用例请参考 https://istio.io/latest/zh/docs/examples/bookinfo/，下面介绍如何将istio的数据面替换为govoy并跑起来。
+istio的bookinfo用例请参考 https://istio.io/latest/zh/docs/examples/bookinfo/ , 下面介绍如何将istio的数据面替换为govoy并跑起来。
+
 (1) 安装istioctl，参考 https://istio.io/latest/zh/docs/setup/getting-started/
 
 (2) 安装istio，指定govoy作为数据面，另外指定isito版本为1.13.2（其他版本暂未做验证），由于iptables的规则设置依然采用istio的实现，所以proxy_init也需要做指定
